@@ -1,0 +1,40 @@
+# Global gitignore — symlinked to ~/.gitignore_global, referenced from .gitconfig
+# These never get committed in ANY repo on this machine.
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+
+# Editor swap / backup
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+.python-version
+.pytest_cache/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Logs / tmp
+*.log
+*.tmp
+
+# Secrets — belt and suspenders
+.env
+.env.*
+!.env.example

@@ -1,0 +1,66 @@
+[user]
+  name = Sumit Bansal
+  email = subansal@nvidia.com
+
+[init]
+  defaultBranch = main
+
+[color]
+  ui = auto
+
+[pull]
+  # Safer default for new users; flip to `rebase = true` if you prefer that flow
+  rebase = false
+
+[push]
+  default = simple
+  autoSetupRemote = true
+
+[core]
+  editor = vi
+  excludesfile = ~/.gitignore_global
+  # Faster status in large repos
+  fsmonitor = true
+  untrackedCache = true
+
+[merge]
+  conflictstyle = diff3
+
+[fetch]
+  prune = true
+
+[diff]
+  algorithm = histogram
+
+[rebase]
+  autostash = true
+  autosquash = true
+
+# -- Aliases ------------------------------------------------------------------
+# Use as: git s, git co main, git l, etc.
+[alias]
+  s = status -sb
+  co = checkout
+  br = branch
+  ci = commit
+  ca = commit --amend --no-edit
+  cm = commit -m
+  p = push
+  pl = pull
+  f = fetch --all --prune
+  l = log --oneline --graph --decorate -20
+  ll = log --oneline --graph --decorate --all -30
+  d = diff
+  ds = diff --staged
+  st = stash
+  unstage = reset HEAD --
+  last = log -1 HEAD --stat
+  amend = commit --amend --no-edit
+  # Push current branch to origin, setting upstream if needed
+  pushup = !git push -u origin "$(git symbolic-ref --short HEAD)"
+  # Show which files changed in the last commit
+  files = show --stat --pretty=""
+  # Branches sorted by most-recent commit
+  recent = branch --sort=-committerdate
+  # Quick "what was I working on" — last 5 commits across all branches
+  wip = log --oneline --graph --decorate --all -5
