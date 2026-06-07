@@ -1,6 +1,20 @@
 # dotfiles-version: 1.0.0
 Include omnistation_config
 
+Host omnistation
+    HostName omni-lsn-talxl.ext-nv-prd-apps.teleport.sh
+    User subansal
+    Port 3022
+    UserKnownHostsFile /Users/subansal/.tsh/known_hosts
+    IdentityFile /Users/subansal/.tsh/keys/ext-nv-prd-apps.teleport.sh/subansal@nvidia.com
+    CertificateFile /Users/subansal/.tsh/keys/ext-nv-prd-apps.teleport.sh/subansal@nvidia.com-ssh/ext-nv-prd-apps.teleport.sh-cert.pub
+    ProxyCommand /usr/local/bin/tsh proxy ssh --cluster=ext-nv-prd-apps.teleport.sh --proxy=ext-nv-prd-apps.teleport.sh:443 %r@%h:%p
+    StrictHostKeyChecking no
+    ServerAliveInterval 30
+    ServerAliveCountMax 10
+    TCPKeepAlive yes
+    ConnectTimeout 30
+
 # Added by scg-cowork git-setup on 2026-05-20 15:10Z
 #   IdentitiesOnly yes
 Host gitlab-master.nvidia.com

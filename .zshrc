@@ -32,6 +32,23 @@ whereami() {
   fi
   print -P "%F{cyan}╭─%f %B%m%b  %F{green}${label}%f"
   print -P "%F{cyan}╰─%f %F{yellow}${restrict}%f"
+
+  # Omnistation MCP status — show cached (no delay), refresh async in background
+  if [[ "$_OS" == "Darwin" ]]; then
+    local _cache="$HOME/.omni-mcp-status"
+    local _age=300  # refresh cache if older than 5 min
+    if [[ -f "$_cache" ]]; then
+      print -P "%F{cyan}   MCP%f $(cat "$_cache")"
+    else
+      print -P "%F{cyan}   MCP%f %F{yellow}checking…%f"
+    fi
+    # Refresh in background if missing or stale
+    local _mtime=0
+    [[ -f "$_cache" ]] && _mtime=$(stat -f %m "$_cache" 2>/dev/null || echo 0)
+    if (( $(date +%s) - _mtime > _age )); then
+      { ssh -o ConnectTimeout=10 omnistation '~/mcp-health.sh' >! "$_cache" 2>/dev/null } &!
+    fi
+  fi
 }
 [[ -o interactive && -o login ]] && whereami
 
@@ -228,6 +245,13 @@ alias gr="git rebase"
 # -- Misc niceties -----------------------------------------------------------
 alias path='echo -e ${PATH//:/\\n}'
 alias reload="source ~/.zshrc && echo 'reloaded ~/.zshrc'"
+
+# -- Omnistation -------------------------------------------------------------
+omni-claude() {
+  local prompt="$*"
+  ssh omnistation \
+    "/opt/omni-relay/.venv/lib/python3.12/site-packages/claude_agent_sdk/_bundled/claude -p $(printf '%q' "$prompt") --output-format text"
+}
 
 # -- Functions ---------------------------------------------------------------
 mkcd() { mkdir -p "$1" && cd "$1"; }
