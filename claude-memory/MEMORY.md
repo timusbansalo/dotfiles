@@ -1,0 +1,5 @@
+- [Dotfiles repo](dotfiles-repo.md) — ~/dotfiles, single ./install.sh dispatcher, OS+NVIDIA-aware; repo CLAUDE.md is source of truth
+- [User preferences](user-preferences.md) — one-command setup, simple prompt w/ hostname, idempotent scripts, commit learnings, no ACL proxying
+- [NVIDIA environments](nvidia-environments.md) — macOS / NVIDIA VM / Omnistation; Omnistation egress policy (apt → Artifactory → ask human)
+- [Dev box GitHub egress](dev-box-github-egress.md) — this Omnistation box blocks github.com (503) & api.github.com (403); raw works
+- [Bash set -e pitfalls](bash-set-e-pitfalls.md) — traps found testing the installer: bare return 1, pipefail in $(), && in loops, chsh hang, apt debconf

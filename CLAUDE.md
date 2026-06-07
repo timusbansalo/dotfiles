@@ -110,6 +110,10 @@ the simple native prompt instead. The Nerd Font is fetched from
   auto-run by `install-linux.sh` on NVIDIA envs (skip with `NV_ARTIFACTORY=0`).
 - `ssh/config` — non-secret SSH config (gitlab + the linux VM), `~`-relative
   IdentityFile paths so it's portable; symlinked to `~/.ssh/config`.
+- `sync-from-omnistation.sh` — RUN ON THE MAC: tsh-scp the repo from Omnistation,
+  verify the transfer, fast-forward the Mac repo, push to GitHub, sync memory.
+- `claude-memory/` — git-synced copy of the agent's memory files (this file
+  `CLAUDE.md` is the canonical, auto-read source of truth; keep both updated).
 - `.zshrc` — single shared, OS-aware shell config.
 - `.gitconfig`, `.gitignore_global`, `.vimrc` (vim-plug), `macos-defaults.sh`.
 - `.claude/settings.macos.json` + `.claude/settings.linux.json` — per-OS Claude

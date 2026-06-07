@@ -55,6 +55,29 @@ in the repo — same file. Commit and push from a machine with personal-GitHub
 access (Mac or NVIDIA VM). **Omnistation cannot push to personal GitHub** — push
 from elsewhere or mirror to NVIDIA GitLab. See `CLAUDE.md`.
 
+### Pulling changes made on Omnistation back to GitHub
+Changes made on the Omnistation sandbox are committed locally there but can't be
+pushed (no personal-GitHub egress). On your **Mac**, run:
+
+```bash
+./sync-from-omnistation.sh
+```
+
+It: `tsh scp -r subansal@omni-lsn-talxl:~/dotfiles` into a temp dir → **verifies**
+the transfer (git fsck, all required files present + non-empty, version markers
+consistent) → **fast-forwards** your Mac repo with the Omnistation commits (their
+messages/README come along) → **pushes** to GitHub → syncs `claude-memory/`
+locally. Override `REMOTE` / `REPO` / `MAC_MEMORY_DIR` via env vars. Aborts safely
+if the transfer is incomplete or the branches have diverged.
+
+## Claude memory
+
+`CLAUDE.md` (auto-read by Claude in this repo) holds the canonical preferences,
+NVIDIA package policy, and environment notes. `claude-memory/` mirrors the
+agent's working memory files so they travel via git; `sync-from-omnistation.sh`
+also drops a local copy into `~/.claude/memory` on the Mac. Keep both updated
+when preferences change.
+
 ## Uninstall
 
 ```bash
