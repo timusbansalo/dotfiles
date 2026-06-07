@@ -42,11 +42,16 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"  # speed up status in big repos
 
 if [[ -d "$ZSH" ]]; then
   # Oh My Zsh is installed (macOS, or a Linux box with github access).
+  # Use Powerlevel10k whenever it's installed (macOS always; Linux on hosts
+  # where it could be cloned). Otherwise no theme -> native prompt below.
+  if [[ -d "$ZSH/custom/themes/powerlevel10k" ]]; then
+    ZSH_THEME="powerlevel10k/powerlevel10k"
+  else
+    ZSH_THEME=""
+  fi
   if [[ "$_OS" == "Darwin" ]]; then
-    ZSH_THEME="powerlevel10k/powerlevel10k"   # rich prompt on macOS
     plugins=(git macos zsh-autosuggestions zsh-syntax-highlighting fzf)
   else
-    ZSH_THEME=""                              # Linux: simple native prompt below
     plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf)
   fi
   source "$ZSH/oh-my-zsh.sh"
@@ -270,9 +275,23 @@ print(path + "|" + str(art.get("seed", "unknown")))
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
 # -- Prompt ------------------------------------------------------------------
-if [[ "$_OS" == "Darwin" ]]; then
-  # Powerlevel10k user config (created by `p10k configure`).
-  [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+if [[ -d "$ZSH/custom/themes/powerlevel10k" && -f ~/.p10k.zsh ]]; then
+  # Powerlevel10k with the committed lean config — same look on macOS and on any
+  # Linux box where p10k could be installed (NVIDIA VM). Omnistation falls to
+  # the native prompt below because p10k can't be cloned there.
+  source ~/.p10k.zsh
+
+  # Add the hostname to the lean prompt (it omits it by default) — user pref.
+  # Prepend a `context` segment, force it always on, show just the short host.
+  if (( ! ${POWERLEVEL9K_LEFT_PROMPT_ELEMENTS[(I)context]} )); then
+    typeset -ga POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context "${POWERLEVEL9K_LEFT_PROMPT_ELEMENTS[@]}")
+  fi
+  typeset -g POWERLEVEL9K_ALWAYS_SHOW_CONTEXT=true
+  typeset -g POWERLEVEL9K_CONTEXT_TEMPLATE='%m'
+  typeset -g POWERLEVEL9K_CONTEXT_DEFAULT_FOREGROUND=green
+  typeset -g POWERLEVEL9K_CONTEXT_SUDO_FOREGROUND=yellow
+  typeset -g POWERLEVEL9K_CONTEXT_ROOT_FOREGROUND=red
+
   # Always show the full literal cwd (no truncation, no ~ abbreviation).
   typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=none
   typeset -g POWERLEVEL9K_SHORTEN_DIR_LENGTH=0
@@ -281,9 +300,8 @@ if [[ "$_OS" == "Darwin" ]]; then
   typeset -g POWERLEVEL9K_DIR_MIN_COMMAND_COLUMNS_PCT=0
   typeset -g POWERLEVEL9K_DIR_CONTENT_EXPANSION='%d'
 else
-  # Simple, small Linux prompt with the hostname. No p10k dependency, so it
-  # works everywhere including NVIDIA Omnistation. Git branch via zsh's
-  # built-in vcs_info (no plugin needed).  Looks like:  host  ~/path (branch) ❯
+  # No p10k (e.g. NVIDIA Omnistation): simple native prompt with the hostname.
+  # Git branch via zsh's built-in vcs_info.  Looks like:  host  ~/path (branch) ❯
   autoload -Uz vcs_info
   zstyle ':vcs_info:*' enable git
   zstyle ':vcs_info:git:*' formats ' (%b)'

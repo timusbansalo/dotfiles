@@ -1,0 +1,21 @@
+Include omnistation_config
+
+# Added by scg-cowork git-setup on 2026-05-20 15:10Z
+#   IdentitiesOnly yes
+Host gitlab-master.nvidia.com
+  HostName gitlab-master.nvidia.com
+  User git
+  Port 12051
+  IdentityFile ~/.ssh/id_ed25519_gitlab_nvidia
+  IdentitiesOnly yes
+
+Host vm subansa-linux-vm.nvidia.com
+    HostName subansa-linux-vm.nvidia.com
+    User subansal
+    ServerAliveInterval 30
+    ServerAliveCountMax 120
+    TCPKeepAlive yes
+    ConnectTimeout 30
+    ControlMaster auto
+    ControlPath ~/.ssh/cm-%r@%h:%p
+    ControlPersist 1h

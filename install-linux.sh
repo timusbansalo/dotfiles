@@ -262,6 +262,30 @@ else
   echo "  github blocked ($NV_ENV) — skipping OMZ; .zshrc uses native prompt + apt plugins"
 fi
 
+# -- Powerlevel10k (github-gated) --------------------------------------------
+# When p10k is installed, .zshrc uses the committed ~/.p10k.zsh (same lean
+# prompt as macOS). When it can't be installed (Omnistation: github blocked),
+# .zshrc falls back to the simple native prompt automatically.
+echo ""
+echo "--- Powerlevel10k ---"
+P10K_DIR="$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+  echo "  no Oh My Zsh — Linux will use the simple native prompt"
+elif [[ -d "$P10K_DIR" ]]; then
+  echo "  already cloned, pulling updates"
+  git -C "$P10K_DIR" pull --quiet 2>/dev/null || true
+elif [[ "$NV_GITHUB_OK" == "1" ]]; then
+  echo "  cloning powerlevel10k..."
+  if git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_DIR"; then
+    echo "  installed (will use ~/.p10k.zsh)"
+  else
+    echo "  clone failed — native prompt will be used"
+    note "Powerlevel10k clone failed; using the native prompt."
+  fi
+else
+  echo "  github blocked — using the simple native prompt instead of p10k"
+fi
+
 # -- zsh plugins -------------------------------------------------------------
 # With OMZ + github: clone into OMZ custom. Otherwise: apt packages, which
 # .zshrc sources from /usr/share when OMZ is absent.
@@ -400,6 +424,7 @@ echo "--- shell/git dotfiles ---"
 link .zshrc
 link .gitconfig
 link .gitignore_global
+[[ -f "$REPO_DIR/.p10k.zsh" ]] && link .p10k.zsh   # used when p10k is installed
 
 # -- Vim config --------------------------------------------------------------
 echo ""
