@@ -2,3 +2,12 @@
 .dotfiles-backup-*
 *.swp
 *.tmp
+
+# SSH: only a non-secret ssh/config may be committed. Never keys/secrets.
+ssh/*
+!ssh/config
+id_*
+*.pem
+*.key
+known_hosts*
+*.pub

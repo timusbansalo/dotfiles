@@ -1,10 +1,17 @@
 # =============================================================================
-# .zshrc — Sumit's shell config
-# Symlinked from ~/Downloads/Claude/dotfiles/.zshrc
-# Edit either side, they're the same file.
+# .zshrc — Sumit's shell config (portable: macOS + Linux incl. NVIDIA VMs)
+# Symlinked from the dotfiles repo. Edit either side, they're the same file.
+#
+# Design: macOS uses Oh My Zsh + Powerlevel10k (the rich prompt). Linux uses a
+# simple native prompt with the hostname and NO p10k dependency, so it also
+# works on NVIDIA Omnistation sandboxes where github.com is blocked and OMZ/p10k
+# cannot be cloned. See ~/dotfiles/CLAUDE.md for the full rationale.
 # =============================================================================
 
-# -- Powerlevel10k instant prompt (must be near the top) ---------------------
+# Cache uname once.
+_OS="$(uname -s)"
+
+# -- Powerlevel10k instant prompt (macOS; harmless no-op elsewhere) ----------
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
@@ -14,34 +21,45 @@ export EDITOR="vi"
 export VISUAL="$EDITOR"
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
+# pip --user / cargo / npm-global binaries land here on Linux
+[[ -d "$HOME/.local/bin" ]] && export PATH="$HOME/.local/bin:$PATH"
 
-# Homebrew (Apple Silicon)
+# Homebrew (Apple Silicon / Intel)
 if [[ -f /opt/homebrew/bin/brew ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [[ -f /usr/local/bin/brew ]]; then
   eval "$(/usr/local/bin/brew shellenv)"
 fi
 
-# -- Oh My Zsh ---------------------------------------------------------------
+# -- Oh My Zsh (when present) / plugin fallback (when not) -------------------
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
 
-# Behaviour tweaks
-HYPHEN_INSENSITIVE="true"          # _ and - are interchangeable in completion
-DISABLE_AUTO_UPDATE="false"        # let OMZ self-update
-COMPLETION_WAITING_DOTS="true"     # show "..." while completion is computing
+# Behaviour tweaks (apply regardless of OMZ)
+HYPHEN_INSENSITIVE="true"             # _ and - interchangeable in completion
+DISABLE_AUTO_UPDATE="false"           # let OMZ self-update
+COMPLETION_WAITING_DOTS="true"        # show "..." while completing
 DISABLE_UNTRACKED_FILES_DIRTY="true"  # speed up status in big repos
 
-# Plugins (installed by install.sh)
-plugins=(
-  git
-  macos
-  zsh-autosuggestions
-  zsh-syntax-highlighting
-  fzf
-)
-
-source $ZSH/oh-my-zsh.sh
+if [[ -d "$ZSH" ]]; then
+  # Oh My Zsh is installed (macOS, or a Linux box with github access).
+  if [[ "$_OS" == "Darwin" ]]; then
+    ZSH_THEME="powerlevel10k/powerlevel10k"   # rich prompt on macOS
+    plugins=(git macos zsh-autosuggestions zsh-syntax-highlighting fzf)
+  else
+    ZSH_THEME=""                              # Linux: simple native prompt below
+    plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf)
+  fi
+  source "$ZSH/oh-my-zsh.sh"
+else
+  # No Oh My Zsh (e.g. NVIDIA Omnistation can't clone github). Source the
+  # apt-installed autosuggestions plugin directly. Syntax highlighting must be
+  # sourced LAST, so it's done at the very end of this file.
+  for _f in /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+            /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh; do
+    [[ -r "$_f" ]] && { source "$_f"; break; }
+  done
+  autoload -Uz compinit && compinit -u 2>/dev/null   # basic completion
+fi
 
 # -- History (big, shared across tabs, deduped) -------------------------------
 HISTFILE="$HOME/.zsh_history"
@@ -55,47 +73,44 @@ setopt HIST_IGNORE_SPACE        # commands starting with space don't get saved
 setopt HIST_REDUCE_BLANKS       # trim extra whitespace
 setopt HIST_VERIFY              # don't auto-execute on history expansion
 
-# -- ls / file listing -------------------------------------------------------
-# Richer BSD-ls colors. Pairs of fg/bg per file type:
-#   directory, symlink, socket, pipe, executable, block sp, char sp, setuid,
-#   setgid, sticky dir, writable+sticky dir. Capitals = bold.
-export LSCOLORS="GxFxCxDxBxegedabagaced"
-export CLICOLOR=1
+# -- ls / file listing (OS-aware) --------------------------------------------
+if [[ "$_OS" == "Darwin" ]]; then
+  # BSD ls: -G enables color, LSCOLORS sets the palette.
+  export LSCOLORS="GxFxCxDxBxegedabagaced"
+  export CLICOLOR=1
+  alias ls="ls -ltrFGah"          # preferred format + human sizes
+  alias ll="ls -lahG"
+  alias la="ls -AG"
+  alias lt="ls -lahtrG"           # by mtime, oldest first
+else
+  # GNU ls: --color=auto (LSCOLORS is ignored by GNU ls; -G means no-group).
+  alias ls="ls -ltrFah --color=auto --group-directories-first"
+  alias ll="ls -lah  --color=auto --group-directories-first"
+  alias la="ls -A    --color=auto"
+  alias lt="ls -lahtr --color=auto"
+fi
 
-# BSD-ls aliases — -h gives human-readable sizes (1.2K, 4.3M, 1.2G)
-alias ls="ls -ltrFGah"           # your preferred format + human sizes
-alias ll="ls -lahG"
-alias la="ls -AG"
-alias lt="ls -lahtrG"            # by mtime, oldest first
-
-# If eza is installed (modern Rust ls — file-type colors, icons, git status),
-# these override the BSD-ls aliases above. install.sh installs eza for you.
-# Sizes are human-readable by default in eza.
+# If eza is installed (modern Rust ls), it overrides the aliases above.
+# Icons need a Nerd Font, which we have on macOS but not necessarily on Linux
+# (Omnistation can't download it), so only request icons on macOS.
 if command -v eza >/dev/null 2>&1; then
-  # Default ls: long format, all (incl. hidden), sorted by mtime oldest-first,
-  # with icons, git status column, group dirs first, readable timestamps.
-  alias ls="eza -lah --reverse --sort=modified --icons --group-directories-first --git --time-style=long-iso"
-  alias ll="ls"                              # same as ls
-  alias la="eza -a --icons --group-directories-first"   # short grid, all
-  alias lt="eza --tree --icons --level=3"    # tree view
-  alias lg="eza -lah --icons --group-directories-first --git --time-style=long-iso"  # long, name-sorted
-  alias tree="eza --tree --icons --level=3"
+  if [[ "$_OS" == "Darwin" ]]; then _EZA_ICONS="--icons"; else _EZA_ICONS=""; fi
+  alias ls="eza -lah --reverse --sort=modified $_EZA_ICONS --group-directories-first --git --time-style=long-iso"
+  alias ll="ls"
+  alias la="eza -a $_EZA_ICONS --group-directories-first"
+  alias lt="eza --tree $_EZA_ICONS --level=3"
+  alias lg="eza -lah $_EZA_ICONS --group-directories-first --git --time-style=long-iso"
+  alias tree="eza --tree $_EZA_ICONS --level=3"
 fi
 
 # -- cd with directory history -----------------------------------------------
-# Every cd call is recorded (deduped, most-recent-first) in ~/.cd_history.
-# cd -        show last 10 dirs as a numbered menu; type a number to jump
-# cd --       fuzzy-search full history with fzf (type to filter, Enter to jump)
-# cd <path>   works exactly like normal cd
-# cd          goes home, like normal
-
-CDHISTFILE="$HOME/.cd_history"   # persisted across sessions, survives reboots
-CDHISTSIZE=50                    # how many entries to keep on disk
+# cd -   numbered menu of last 10 dirs;  cd --  fzf fuzzy search;  cd <path> normal
+CDHISTFILE="$HOME/.cd_history"
+CDHISTSIZE=50
 
 cd() {
   local dest
 
-  # ---- cd - : numbered menu of last 10 dirs --------------------------------
   if [[ "$1" == "-" ]]; then
     if [[ ! -s "$CDHISTFILE" ]]; then
       echo "cd history is empty" >&2; return 1
@@ -119,10 +134,9 @@ cd() {
       echo "Invalid selection." >&2; return 1
     fi
 
-  # ---- cd -- : fzf fuzzy search over full history --------------------------
   elif [[ "$1" == "--" ]]; then
     if ! command -v fzf >/dev/null 2>&1; then
-      echo "fzf not found — install with: brew install fzf" >&2; return 1
+      echo "fzf not found — install with apt/brew" >&2; return 1
     fi
     if [[ ! -s "$CDHISTFILE" ]]; then
       echo "cd history is empty" >&2; return 1
@@ -130,17 +144,14 @@ cd() {
     dest=$(cat "$CDHISTFILE" | fzf --prompt="cd > " --height=15 --reverse \
            --preview='ls -1 {} 2>/dev/null | head -20' \
            --preview-window=right:40%:wrap)
-    [[ -z "$dest" ]] && return 0   # user hit Esc
+    [[ -z "$dest" ]] && return 0
 
-  # ---- normal cd -----------------------------------------------------------
   else
     dest="${1:-$HOME}"
   fi
 
-  # Resolve and jump
   builtin cd "$dest" || return $?
 
-  # Record new cwd — skip $HOME (too noisy), deduplicate, trim to CDHISTSIZE
   local cwd="$PWD"
   if [[ "$cwd" != "$HOME" ]]; then
     local tmpfile
@@ -156,15 +167,20 @@ alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 
-# Auto-cd to project dirs
-# Note: don't use `claude` here — it conflicts with the Claude Code CLI binary.
-alias cw="cd ~/Downloads/Claude"               # cw = "Claude workspace"
-alias skills="cd ~/Downloads/Claude/claude-skills"
-alias proj="cd ~/Downloads/Claude/claude-projects"
-alias nvproj="cd ~/Downloads/Claude/claude-nvidia-projects"
-alias dots="cd ~/Downloads/Claude/dotfiles"
+# Project shortcuts. macOS keeps the work under ~/Downloads/Claude; on Linux the
+# repos live directly under $HOME. `dots` always points at this dotfiles repo.
+if [[ "$_OS" == "Darwin" ]]; then
+  alias cw="cd ~/Downloads/Claude"
+  alias skills="cd ~/Downloads/Claude/claude-skills"
+  alias proj="cd ~/Downloads/Claude/claude-projects"
+  alias nvproj="cd ~/Downloads/Claude/claude-nvidia-projects"
+  alias dots="cd ~/Downloads/Claude/dotfiles"
+else
+  alias cw="cd ~/claude 2>/dev/null || cd ~"
+  alias dots="cd ~/dotfiles"
+fi
 
-# -- Git shortcuts (most also in ~/.gitconfig as `git X` aliases) ------------
+# -- Git shortcuts -----------------------------------------------------------
 alias g="git"
 alias gs="git status -sb"
 alias gco="git checkout"
@@ -181,16 +197,12 @@ alias gb="git branch"
 alias gr="git rebase"
 
 # -- Misc niceties -----------------------------------------------------------
-alias path='echo -e ${PATH//:/\\n}'                     # one entry per line
+alias path='echo -e ${PATH//:/\\n}'
 alias reload="source ~/.zshrc && echo 'reloaded ~/.zshrc'"
-alias claudelog="tail -f ~/Downloads/Claude/sync.log"
-alias claudesync="~/Downloads/Claude/sync.sh && echo 'synced'"
 
 # -- Functions ---------------------------------------------------------------
-# mkdir + cd in one go
 mkcd() { mkdir -p "$1" && cd "$1"; }
 
-# Extract anything based on extension
 extract() {
   if [[ -f "$1" ]]; then
     case "$1" in
@@ -210,19 +222,22 @@ extract() {
   fi
 }
 
-# -- nvsave: save an image from build.nvidia.com's JSON tab on clipboard -----
-# Usage:
-#   1. On build.nvidia.com, click JSON tab and Cmd+A, Cmd+C
-#   2. In terminal:  nvsave my-image-name
-#      (no extension needed — JPEG or PNG is auto-detected)
-# Saves to current directory and opens in Preview. Also prints the seed
-# so you can reproduce the exact image later.
+# clip helpers — pbcopy/pbpaste on macOS, xclip/xsel on Linux
+if [[ "$_OS" != "Darwin" ]] && ! command -v pbcopy >/dev/null 2>&1; then
+  if command -v xclip >/dev/null 2>&1; then
+    alias pbcopy='xclip -selection clipboard'
+    alias pbpaste='xclip -selection clipboard -o'
+  elif command -v xsel >/dev/null 2>&1; then
+    alias pbcopy='xsel --clipboard --input'
+    alias pbpaste='xsel --clipboard --output'
+  fi
+fi
+
+# nvsave: save an image from build.nvidia.com's JSON tab on the clipboard.
 nvsave() {
   if [[ -z "$1" ]]; then
     echo "usage: nvsave <basename>   (no extension)" >&2; return 1
   fi
-  # Build the python script as a string (single-quoted, so all chars are
-  # literal). Avoids f-strings to dodge Python 3.10 quoting quirks.
   local script='
 import sys, json, base64
 name = sys.argv[1]
@@ -247,27 +262,43 @@ print(path + "|" + str(art.get("seed", "unknown")))
   local file="${out%%|*}"
   local seed="${out##*|}"
   echo "saved $file  (seed: $seed)"
-  open "$file"
+  if command -v open >/dev/null 2>&1; then open "$file"
+  elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$file" 2>/dev/null; fi
 }
 
 # -- FZF (fuzzy finder) integration ------------------------------------------
-# install.sh runs `$(brew --prefix)/opt/fzf/install` which sets these up,
-# but having the source guarded here makes things robust.
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
-# -- Powerlevel10k user config ----------------------------------------------
-# Created on first run by `p10k configure`. Until you run that, p10k uses
-# its default style.
-[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+# -- Prompt ------------------------------------------------------------------
+if [[ "$_OS" == "Darwin" ]]; then
+  # Powerlevel10k user config (created by `p10k configure`).
+  [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+  # Always show the full literal cwd (no truncation, no ~ abbreviation).
+  typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=none
+  typeset -g POWERLEVEL9K_SHORTEN_DIR_LENGTH=0
+  typeset -g POWERLEVEL9K_DIR_MAX_LENGTH=0
+  typeset -g POWERLEVEL9K_DIR_MIN_COMMAND_COLUMNS=0
+  typeset -g POWERLEVEL9K_DIR_MIN_COMMAND_COLUMNS_PCT=0
+  typeset -g POWERLEVEL9K_DIR_CONTENT_EXPANSION='%d'
+else
+  # Simple, small Linux prompt with the hostname. No p10k dependency, so it
+  # works everywhere including NVIDIA Omnistation. Git branch via zsh's
+  # built-in vcs_info (no plugin needed).  Looks like:  host  ~/path (branch) ❯
+  autoload -Uz vcs_info
+  zstyle ':vcs_info:*' enable git
+  zstyle ':vcs_info:git:*' formats ' (%b)'
+  precmd_functions+=(vcs_info)
+  setopt PROMPT_SUBST
+  PROMPT='%F{green}%m%f %F{cyan}%~%f%F{yellow}${vcs_info_msg_0_}%f %(!.#.❯) '
+fi
 
-# -- Prompt overrides (win over anything p10k's wizard set) -----------------
-# Always show the full, literal directory path:
-#   - no truncation (full /a/b/c/d, never /a/.../d)
-#   - no ~ abbreviation (literal /Users/subansal/..., not ~/...)
-typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=none
-typeset -g POWERLEVEL9K_SHORTEN_DIR_LENGTH=0
-typeset -g POWERLEVEL9K_DIR_MAX_LENGTH=0
-typeset -g POWERLEVEL9K_DIR_MIN_COMMAND_COLUMNS=0
-typeset -g POWERLEVEL9K_DIR_MIN_COMMAND_COLUMNS_PCT=0
-# %d = zsh prompt expansion for full cwd without ~ substitution
-typeset -g POWERLEVEL9K_DIR_CONTENT_EXPANSION='%d'
+# -- Linux-local overrides (sourced if present; written by install-linux.sh) -
+[[ -f "$HOME/.zshrc.linux-local" && "$_OS" == "Linux" ]] && source "$HOME/.zshrc.linux-local"
+
+# -- zsh-syntax-highlighting (MUST be last) — only when OMZ didn't load it ----
+if [[ ! -d "$ZSH" ]]; then
+  for _f in /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+            /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
+    [[ -r "$_f" ]] && { source "$_f"; break; }
+  done
+fi

@@ -1,0 +1,50 @@
+{
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "atlassian@claude-plugins-official": true,
+    "slack@claude-plugins-official": true,
+    "remember@claude-plugins-official": true,
+    "desktop-commander@claude-plugins-official": true
+  },
+  "theme": "light",
+  "permissions": {
+    "allow": [
+      "Read(*)",
+      "Edit(__HOME__/Downloads/Claude/**)",
+      "Write(__HOME__/Downloads/Claude/**)",
+      "Bash(git *)",
+      "Bash(npm *)",
+      "Bash(brew *)",
+      "Bash(python3 *)",
+      "Bash(ls *)",
+      "Bash(ll *)",
+      "Bash(cat *)",
+      "Bash(grep *)",
+      "Bash(rg *)",
+      "Bash(find *)",
+      "Bash(mkdir *)",
+      "Bash(touch *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(echo *)",
+      "Bash(open *)",
+      "Bash(curl *)",
+      "Bash(pbpaste *)",
+      "Bash(pbcopy *)",
+      "Bash(which *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(less *)",
+      "Bash(wc *)",
+      "Bash(sed *)",
+      "Bash(awk *)",
+      "Bash(diff *)",
+      "Bash(date *)",
+      "Bash(env *)",
+      "Bash(printenv *)",
+      "Bash(source *)"
+    ]
+  }
+}

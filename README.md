@@ -1,65 +1,59 @@
 # dotfiles
 
-My macOS terminal config. Oh My Zsh + Powerlevel10k + a curated `.zshrc`,
-`.gitconfig`, and a few setup scripts.
+Cross-platform terminal config for **macOS and Linux** (including NVIDIA VMs and
+Omnistation sandboxes). One installer, OS-aware `.zshrc`, `.gitconfig`, `.vimrc`,
+and per-OS Claude settings.
 
-## What's here
+> **AI agents:** read [`CLAUDE.md`](CLAUDE.md) first — it documents preferences,
+> the NVIDIA/Omnistation package policy, and how to enhance things.
 
-| File                     | Symlinks to              | Purpose                                                |
-|--------------------------|--------------------------|--------------------------------------------------------|
-| `.zshrc`                 | `~/.zshrc`               | shell config: OMZ, plugins, history, aliases, fns      |
-| `.gitconfig`             | `~/.gitconfig`           | global git config + aliases (`git s`, `git l`, ...)    |
-| `.gitignore_global`      | `~/.gitignore_global`    | files git should ignore in every repo on this Mac      |
-| `install.sh`             | —                        | one-time: brew + OMZ + p10k + plugins + font + links   |
-| `uninstall.sh`           | —                        | remove the symlinks (won't touch OMZ itself)           |
-| `macos-defaults.sh`      | —                        | optional: keyboard, Finder, Dock, screenshot tweaks    |
-
-## Install (on a fresh Mac)
+## Install — one command, any machine
 
 ```bash
-cd ~/Downloads/Claude/dotfiles
-chmod +x install.sh uninstall.sh macos-defaults.sh
 ./install.sh
 ```
 
-Then in your terminal app's settings, **change the font to "MesloLGS NF"**
-(installed automatically by the script). Open a new window — the
-Powerlevel10k wizard will run on first launch.
+That's it. `install.sh` detects the OS and runs the right installer; you never
+have to remember which one:
 
-Optionally:
-```bash
-./macos-defaults.sh
-```
+| Entry | Runs | Notes |
+|-------|------|-------|
+| `install.sh` | dispatcher | detects macOS vs Linux |
+| `install-macos.sh` | Homebrew + OMZ + Powerlevel10k + plugins + font + symlinks + Vim + Claude | |
+| `install-linux.sh` | distro/pkgmgr/sudo/NVIDIA-aware setup | apt + Artifactory on Omnistation; native prompt; no github required |
 
-## Day-to-day
+Everything is idempotent (safe to re-run) and backs up anything it replaces to
+`~/.dotfiles-backup-<timestamp>/`.
 
-The repo lives at `~/Downloads/Claude/dotfiles/`, alongside `claude-skills`,
-`claude-nvidia-projects`, and `claude-projects`. The same launchd job
-(`com.subansal.claude-sync`) commits and pushes any changes to all four
-repos at 6pm daily.
+## What's here
 
-Edit either the symlink in `~` or the file in the repo — they're the same
-inode, so it doesn't matter which.
+| File | Symlinks / renders to | Purpose |
+|------|----------------------|---------|
+| `.zshrc` | `~/.zshrc` | OS-aware shell config (OMZ on mac, native prompt on Linux) |
+| `.gitconfig` | `~/.gitconfig` | global git config + aliases |
+| `.gitignore_global` | `~/.gitignore_global` | per-repo ignores |
+| `.vimrc` | `~/.vimrc` | vim-plug config (bootstrapped + `:PlugInstall` by the installer) |
+| `.claude/settings.{macos,linux}.json` | `~/.claude/settings.json` | per-OS Claude permissions, rendered (not symlinked) with this host's `$HOME` |
+| `ssh/config` *(optional)* | `~/.ssh/config` | non-secret SSH config — **keys are never committed** |
+| `macos-defaults.sh` | — | optional macOS Finder/Dock/keyboard tweaks |
+| `uninstall.sh` | — | remove the symlinks |
 
-Force a sync now: `claudesync` (alias defined in `.zshrc`).
+## Prompt
 
-## Customize the prompt
+- **macOS:** Powerlevel10k (`p10k configure` → `~/.p10k.zsh`).
+- **Linux:** a simple native prompt with the hostname — `host  ~/path  (branch)  ❯`
+  — no Powerlevel10k dependency, so it works even where github is blocked.
 
-`p10k configure` will re-run the Powerlevel10k wizard. It writes to
-`~/.p10k.zsh`. Once you like it:
+## Sync
 
-```bash
-cp ~/.p10k.zsh ~/Downloads/Claude/dotfiles/.p10k.zsh
-~/Downloads/Claude/dotfiles/install.sh   # re-link so the file is canonical
-```
-
-The next auto-sync at 6pm pushes it to GitHub.
+Origin is `github.com/timusbansalo/dotfiles`. Edit the symlink in `~` or the file
+in the repo — same file. Commit and push from a machine with personal-GitHub
+access (Mac or NVIDIA VM). **Omnistation cannot push to personal GitHub** — push
+from elsewhere or mirror to NVIDIA GitLab. See `CLAUDE.md`.
 
 ## Uninstall
 
 ```bash
-~/Downloads/Claude/dotfiles/uninstall.sh   # removes symlinks
-uninstall_oh_my_zsh                        # removes OMZ (optional, in a new shell)
+./uninstall.sh                 # removes symlinks
 ```
-
 Backups of replaced files live at `~/.dotfiles-backup-<timestamp>/`.
