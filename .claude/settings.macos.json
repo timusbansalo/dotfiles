@@ -9,6 +9,26 @@
     "desktop-commander@claude-plugins-official": true
   },
   "theme": "light",
+  "skipDangerousModePermissionPrompt": true,
+  "statusLine": {
+    "type": "command",
+    "command": "bash __HOME__/dotfiles/.claude/omni-statusline.sh",
+    "refreshInterval": 300
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash __HOME__/dotfiles/.claude/omni-banner.sh",
+            "timeout": 10,
+            "statusMessage": "Loading workspace status..."
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "allow": [
       "Read(*)",
