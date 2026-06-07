@@ -14,16 +14,20 @@ and per-OS Claude settings.
 ```
 
 That's it. `install.sh` detects the OS and runs the right installer; you never
-have to remember which one:
+have to remember which one. It first runs a **preflight** that checks the
+scripts it needs are present and at the same `# dotfiles-version:` (a
+half-synced copy fails loudly instead of doing something weird).
 
 | Entry | Runs | Notes |
 |-------|------|-------|
-| `install.sh` | dispatcher | detects macOS vs Linux |
+| `install.sh` | dispatcher + version preflight | detects macOS vs Linux |
 | `install-macos.sh` | Homebrew + OMZ + Powerlevel10k + plugins + font + symlinks + Vim + Claude | |
 | `install-linux.sh` | distro/pkgmgr/sudo/NVIDIA-aware setup | apt + Artifactory on Omnistation; native prompt; no github required |
+| `nvidia-artifactory.sh` | wires pip/npm (documents cargo) to NVIDIA Artifactory | auto-run on NVIDIA envs; `NV_ARTIFACTORY=0` to skip |
 
-Everything is idempotent (safe to re-run) and backs up anything it replaces to
-`~/.dotfiles-backup-<timestamp>/`.
+On login you get a one-line banner (`whereami`) showing the machine, environment,
+and its restrictions. Everything is idempotent and backs up anything it replaces
+to `~/.dotfiles-backup-<timestamp>/`.
 
 ## What's here
 

@@ -1,3 +1,4 @@
+" dotfiles-version: 1.0.0
 " =============================================================================
 " .vimrc — Sumit's vim config
 " Symlinked from ~/Downloads/Claude/dotfiles/.vimrc

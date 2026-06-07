@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# install.sh — sets up Oh My Zsh + Powerlevel10k + plugins + font,
+# dotfiles-version: 1.0.0
+# install-macos.sh — sets up Oh My Zsh + Powerlevel10k + plugins + font,
 # then symlinks the dotfiles from this repo into $HOME.
+# Normally invoked via ./install.sh (the OS-detecting entry point).
 #
 # Safe to re-run: backs up any existing files it would replace,
 # skips installs that are already in place.

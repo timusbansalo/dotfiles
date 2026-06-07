@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# dotfiles-version: 1.0.0
 # install-linux.sh — portable Linux dotfiles installer.
 #
 # Normally invoked via ./install.sh (the single entry point), but safe to run
@@ -241,6 +242,17 @@ ensure_cmd curl curl yes
 ZSH_OK=0
 if ensure_cmd zsh zsh no; then ZSH_OK=1; fi
 echo ""
+
+# -- NVIDIA Artifactory (wire pip/npm so installs work without github) -------
+# On NVIDIA environments, point pip/npm at the internal Artifactory mirror so
+# package installs (and the cargo fallback below) work without open internet.
+# Skip with NV_ARTIFACTORY=0.
+if [[ "$NV_ENV" == "omnistation" || "$NV_ENV" == "nvidia-vm" ]] \
+     && [[ "${NV_ARTIFACTORY:-1}" == "1" ]] && [[ -f "$REPO_DIR/nvidia-artifactory.sh" ]]; then
+  echo "--- NVIDIA Artifactory (pip/npm registries) ---"
+  bash "$REPO_DIR/nvidia-artifactory.sh" || note "Artifactory bootstrap had warnings."
+  echo ""
+fi
 
 # -- Oh My Zsh (only when github is reachable) -------------------------------
 # On Linux the prompt comes from .zshrc's native prompt (not p10k), so OMZ is

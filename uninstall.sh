@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# dotfiles-version: 1.0.0
 # uninstall.sh — removes the symlinks created by install.sh.
 # Does NOT uninstall Oh My Zsh, Powerlevel10k, plugins, or the font.
 # That cleanup is left to you (OMZ has its own `uninstall_oh_my_zsh`).

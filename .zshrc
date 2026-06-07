@@ -1,3 +1,4 @@
+# dotfiles-version: 1.0.0
 # =============================================================================
 # .zshrc — Sumit's shell config (portable: macOS + Linux incl. NVIDIA VMs)
 # Symlinked from the dotfiles repo. Edit either side, they're the same file.
@@ -10,6 +11,29 @@
 
 # Cache uname once.
 _OS="$(uname -s)"
+
+# -- Login welcome banner ----------------------------------------------------
+# `whereami` prints which machine/env this is + its restrictions. Shown once on
+# interactive login shells; run `whereami` anytime. Printed BEFORE the p10k
+# instant-prompt block on purpose (console output after it triggers warnings).
+whereami() {
+  emulate -L zsh
+  local label restrict pretty
+  if [[ "$_OS" == "Darwin" ]]; then
+    label="macOS $(sw_vers -productVersion 2>/dev/null)"; restrict="full internet"
+  elif [[ "$(hostname)" == omni-* || -n "${SSH_SESSION_WEBPROXY_ADDR:-}" ]]; then
+    label="NVIDIA Omnistation sandbox"
+    restrict="no open internet · github blocked · apt + Artifactory only (never proxy)"
+  elif [[ "$(hostname -f 2>/dev/null)" == *.nvidia.com ]]; then
+    label="NVIDIA Linux VM"; restrict="internal+external net · personal GitHub + NVIDIA GitLab OK"
+  else
+    pretty="$(. /etc/os-release 2>/dev/null; print -r -- "${PRETTY_NAME:-Linux}")"
+    label="$pretty"; restrict="standard environment"
+  fi
+  print -P "%F{cyan}╭─%f %B%m%b  %F{green}${label}%f"
+  print -P "%F{cyan}╰─%f %F{yellow}${restrict}%f"
+}
+[[ -o interactive && -o login ]] && whereami
 
 # -- Powerlevel10k instant prompt (macOS; harmless no-op elsewhere) ----------
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then

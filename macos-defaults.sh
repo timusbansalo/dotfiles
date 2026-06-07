@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# dotfiles-version: 1.0.0
 # macos-defaults.sh — a curated set of macOS preferences.
 # Idempotent. Run once after install.sh. Some changes require log-out / restart.
 

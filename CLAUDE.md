@@ -16,6 +16,23 @@ Everything must be **idempotent** (safe to re-run) and **never hang** in a
 non-interactive run. This repo is `set -euo pipefail` throughout — see the
 "bash gotchas" section.
 
+## Versioning & preflight
+Every script/config carries a `# dotfiles-version: X.Y.Z` marker (vimscript uses
+`"`; JSON has none — it can't hold comments). The canonical version is
+`DOTFILES_VERSION` in `install.sh`. On startup `install.sh` runs a **preflight**
+that verifies the scripts it depends on (`install-<os>.sh`, `.zshrc`, and
+`nvidia-artifactory.sh` when present) exist AND carry the matching version —
+aborting loudly on a missing file or version mismatch (catches half-synced
+copies). When you change scripts, bump `DOTFILES_VERSION` and every marker
+together.
+
+## Login welcome banner
+`.zshrc` defines `whereami` and shows it once on interactive login shells: it
+prints the hostname, the environment (macOS / NVIDIA VM / Omnistation), and the
+restrictions (e.g. "no open internet · github blocked · apt + Artifactory only").
+It's printed BEFORE the p10k instant-prompt block (console output after it warns).
+Run `whereami` anytime.
+
 ## Environments this repo runs on
 1. **macOS** (Apple Silicon) — primary workstation. Homebrew. Rich prompt
    (Powerlevel10k). Full internet.
@@ -86,9 +103,13 @@ the simple native prompt instead. The Nerd Font is fetched from
 - Always end commit messages with the Co-Authored-By trailer for Claude.
 
 ## Repo layout
-- `install.sh` — OS-detecting dispatcher (the only entry point).
+- `install.sh` — OS-detecting dispatcher + version preflight (the only entry point).
 - `install-macos.sh` — Homebrew + OMZ + p10k + symlinks + Vim + Claude.
 - `install-linux.sh` — portable Linux installer (distro/pkgmgr/sudo/NVIDIA aware).
+- `nvidia-artifactory.sh` — wires pip/npm (documents cargo) to NVIDIA Artifactory;
+  auto-run by `install-linux.sh` on NVIDIA envs (skip with `NV_ARTIFACTORY=0`).
+- `ssh/config` — non-secret SSH config (gitlab + the linux VM), `~`-relative
+  IdentityFile paths so it's portable; symlinked to `~/.ssh/config`.
 - `.zshrc` — single shared, OS-aware shell config.
 - `.gitconfig`, `.gitignore_global`, `.vimrc` (vim-plug), `macos-defaults.sh`.
 - `.claude/settings.macos.json` + `.claude/settings.linux.json` — per-OS Claude
