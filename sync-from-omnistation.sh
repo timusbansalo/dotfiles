@@ -78,14 +78,19 @@ done
 [[ $missing -eq 1 ]] && die "Required files missing — incomplete transfer. Re-run."
 
 # 2c. version markers consistent across all versioned files.
-VER="$(grep -m1 -oE 'dotfiles-version: [0-9]+\.[0-9]+\.[0-9]+' "$SRC/install.sh" | awk '{print $2}')"
+# NOTE: `|| true` is required — grep finds no match in files that mention
+# "dotfiles-version:" only in prose (CLAUDE.md, README.md, claude-memory/*),
+# and under `set -o pipefail` a failed pipeline in $(...) would abort the script.
+VER="$(grep -m1 -oE 'dotfiles-version: [0-9]+\.[0-9]+\.[0-9]+' "$SRC/install.sh" | awk '{print $2}' || true)"
 [[ -n "$VER" ]] || die "could not read dotfiles-version from install.sh"
 say "Repo version: $VER"
 badver=0
 while IFS= read -r f; do
-  fv="$(grep -m1 -oE 'dotfiles-version: [0-9]+\.[0-9]+\.[0-9]+' "$f" | awk '{print $2}')"
-  [[ -n "$fv" && "$fv" != "$VER" ]] && { printf '  \033[31mversion mismatch:\033[0m %s -> %s\n' "${f#$SRC/}" "$fv"; badver=1; }
-done < <(grep -rlE 'dotfiles-version:' "$SRC" --exclude-dir=.git 2>/dev/null)
+  fv="$(grep -m1 -oE 'dotfiles-version: [0-9]+\.[0-9]+\.[0-9]+' "$f" | awk '{print $2}' || true)"
+  if [[ -n "$fv" && "$fv" != "$VER" ]]; then
+    printf '  \033[31mversion mismatch:\033[0m %s -> %s\n' "${f#$SRC/}" "$fv"; badver=1
+  fi
+done < <(grep -rlE 'dotfiles-version:' "$SRC" --exclude-dir=.git 2>/dev/null || true)
 [[ $badver -eq 1 ]] && die "inconsistent versions — transfer looks partial. Re-run."
 say "All version markers agree on $VER."
 
