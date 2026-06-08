@@ -1,32 +1,63 @@
-# dotfiles-version: 1.0.0
+# dotfiles-version: 1.1.0
+# Key layout:
+#   ~/.ssh/id_ed25519_nvidia_vm       — SSH into any NVIDIA VM
+#   ~/.ssh/id_ed25519_gitlab_nvidia   — NVIDIA GitLab only
+#   ~/.ssh/id_ed25519_github_personal — personal GitHub (timusbansalo)
+#   ~/.ssh/id_ed25519_scg_ci_deploy   — CI pipeline deploy (managed by CI)
+#   ~/.tsh/keys/...                   — Omnistation/Teleport (auto-managed by tsh)
+
 Include omnistation_config
 
+# ── NVIDIA GitLab ────────────────────────────────────────────────────────────
+Host gitlab-master.nvidia.com
+    HostName gitlab-master.nvidia.com
+    User git
+    Port 12051
+    IdentityFile ~/.ssh/id_ed25519_gitlab_nvidia
+    IdentitiesOnly yes
+
+# ── Personal GitHub ──────────────────────────────────────────────────────────
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_github_personal
+    IdentitiesOnly yes
+
+# ── Omnistation sandbox (Teleport — managed by tsh, do not edit) ─────────────
+# Paths below are macOS-specific; on Linux this block is present but unused.
 Host omnistation
     HostName omni-lsn-talxl.ext-nv-prd-apps.teleport.sh
     User subansal
     Port 3022
-    UserKnownHostsFile /Users/subansal/.tsh/known_hosts
-    IdentityFile /Users/subansal/.tsh/keys/ext-nv-prd-apps.teleport.sh/subansal@nvidia.com
-    CertificateFile /Users/subansal/.tsh/keys/ext-nv-prd-apps.teleport.sh/subansal@nvidia.com-ssh/ext-nv-prd-apps.teleport.sh-cert.pub
-    ProxyCommand /usr/local/bin/tsh proxy ssh --cluster=ext-nv-prd-apps.teleport.sh --proxy=ext-nv-prd-apps.teleport.sh:443 %r@%h:%p
+    UserKnownHostsFile ~/.tsh/known_hosts
+    IdentityFile ~/.tsh/keys/ext-nv-prd-apps.teleport.sh/subansal@nvidia.com
+    CertificateFile ~/.tsh/keys/ext-nv-prd-apps.teleport.sh/subansal@nvidia.com-ssh/ext-nv-prd-apps.teleport.sh-cert.pub
+    ProxyCommand tsh proxy ssh --cluster=ext-nv-prd-apps.teleport.sh --proxy=ext-nv-prd-apps.teleport.sh:443 %r@%h:%p
     StrictHostKeyChecking no
     ServerAliveInterval 30
     ServerAliveCountMax 10
     TCPKeepAlive yes
     ConnectTimeout 30
 
-# Added by scg-cowork git-setup on 2026-05-20 15:10Z
-#   IdentitiesOnly yes
-Host gitlab-master.nvidia.com
-  HostName gitlab-master.nvidia.com
-  User git
-  Port 12051
-  IdentityFile ~/.ssh/id_ed25519_gitlab_nvidia
-  IdentitiesOnly yes
+# ── NVIDIA VMs (all use the vm-identity key) ─────────────────────────────────
+Host prodvm subansal-prod-vm.nvidia.com
+    HostName subansal-prod-vm.nvidia.com
+    User subansal
+    IdentityFile ~/.ssh/id_ed25519_nvidia_vm
+    IdentitiesOnly yes
+    ServerAliveInterval 30
+    ServerAliveCountMax 120
+    TCPKeepAlive yes
+    ConnectTimeout 30
+    ControlMaster auto
+    ControlPath ~/.ssh/cm-%r@%h:%p
+    ControlPersist 1h
 
 Host vm subansa-linux-vm.nvidia.com
     HostName subansa-linux-vm.nvidia.com
     User subansal
+    IdentityFile ~/.ssh/id_ed25519_nvidia_vm
+    IdentitiesOnly yes
     ServerAliveInterval 30
     ServerAliveCountMax 120
     TCPKeepAlive yes
