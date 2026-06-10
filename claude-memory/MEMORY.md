@@ -3,3 +3,4 @@
 - [NVIDIA environments](nvidia-environments.md) — macOS / NVIDIA VM / Omnistation; Omnistation egress policy (apt → Artifactory → ask human)
 - [Dev box GitHub egress](dev-box-github-egress.md) — this Omnistation box blocks github.com (503) & api.github.com (403); raw works
 - [Bash set -e pitfalls](bash-set-e-pitfalls.md) — traps found testing the installer: bare return 1, pipefail in $(), && in loops, chsh hang, apt debconf
+- [archdev-dfp dashboard](archdev-dfp-dashboard.md) — NVIDIA DFP tracker (archdev-dfp.nvidia.com); P0 = every program on matrix+schedule, P1 = DFP lifecycle tracking; Vishruth review backlog; v0.16.0 shipped
