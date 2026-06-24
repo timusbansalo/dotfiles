@@ -13,7 +13,7 @@
 # Overridable via env vars (defaults shown):
 #   REMOTE=subansal@omni-lsn-talxl         # tsh target
 #   REMOTE_PATH=~/dotfiles                  # path on the sandbox
-#   REPO=~/Downloads/Claude/dotfiles        # your Mac canonical dotfiles repo
+#   REPO=~/dotfiles                         # your Mac canonical dotfiles repo
 #   MAC_MEMORY_DIR=~/.claude/memory         # where to drop claude-memory locally
 #
 # Requires: tsh (logged in: `tsh login`), git with push access to origin.
@@ -22,7 +22,7 @@ set -euo pipefail
 
 REMOTE="${REMOTE:-subansal@omni-lsn-talxl}"
 REMOTE_PATH="${REMOTE_PATH:-~/dotfiles}"
-REPO="${REPO:-$HOME/Downloads/Claude/dotfiles}"
+REPO="${REPO:-$HOME/dotfiles}"
 MAC_MEMORY_DIR="${MAC_MEMORY_DIR:-$HOME/.claude/memory}"
 
 # Expand ~ in REPO/MAC_MEMORY_DIR if passed literally.

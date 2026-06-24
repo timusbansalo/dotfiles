@@ -119,16 +119,18 @@ link() {
     return
   fi
   if [[ -e "$dst" || -L "$dst" ]]; then
-    mkdir -p "$BACKUP_DIR"
+    mkdir -p "$BACKUP_DIR/$(dirname "$1")"
     mv "$dst" "$BACKUP_DIR/$1"
     echo "  $1: backed up existing -> $BACKUP_DIR/$1"
   fi
+  mkdir -p "$(dirname "$dst")"
   ln -s "$src" "$dst"
   echo "  $1 -> $src"
 }
 link .zshrc
 link .gitconfig
 link .gitignore_global
+link .config/ghostty/config
 
 # Optional: link .p10k.zsh only if you've already run `p10k configure` and
 # checked it into the repo.

@@ -220,7 +220,7 @@ if [[ "$_OS" == "Darwin" ]]; then
   alias skills="cd ~/Downloads/Claude/claude-skills"
   alias proj="cd ~/Downloads/Claude/claude-projects"
   alias nvproj="cd ~/Downloads/Claude/claude-nvidia-projects"
-  alias dots="cd ~/Downloads/Claude/dotfiles"
+  alias dots="cd ~/dotfiles"
 else
   alias cw="cd ~/claude 2>/dev/null || cd ~"
   alias dots="cd ~/dotfiles"
