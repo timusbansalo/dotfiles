@@ -50,12 +50,13 @@ whereami() {
     fi
   fi
 }
-[[ -o interactive && -o login ]] && whereami
 
 # -- Powerlevel10k instant prompt (macOS; harmless no-op elsewhere) ----------
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
+[[ -o interactive && -o login ]] && whereami
+
 
 # -- Path / env ---------------------------------------------------------------
 export EDITOR="vi"
