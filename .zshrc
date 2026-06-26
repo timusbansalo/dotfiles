@@ -94,7 +94,7 @@ if [[ -d "$ZSH" ]]; then
   if [[ "$_OS" == "Darwin" ]]; then
     plugins=(git macos zsh-autosuggestions fzf)
   else
-    plugins=(git zsh-autosuggestions fzf)
+    plugins=(git fzf)
   fi
   source "$ZSH/oh-my-zsh.sh"
 else
