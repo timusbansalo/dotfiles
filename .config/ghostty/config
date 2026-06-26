@@ -1,0 +1,88 @@
+# ghostty config
+# Managed in github.com/timusbansalo/dotfiles — edit the repo copy at
+# ~/Downloads/Claude/dotfiles/.config/ghostty/config (symlinked to
+# ~/.config/ghostty/config by install.sh). Reload in-app: cmd+shift+r.
+#
+# NOTE: Ghostty only accepts comments on their OWN line — never trailing a
+# value (e.g. `font-size = 14  # big` makes the value "14  # big" and errors).
+#
+# Browse choices live:
+#   ghostty +list-themes      ghostty +list-keybinds      ghostty +show-config
+
+# ── Font ──────────────────────────────────────────────────────────────────
+# Same Nerd Font your Powerlevel10k prompt + eza icons already use, so glyphs
+# render correctly with zero terminal-app font fiddling.
+font-family        = MesloLGS NF
+font-size          = 14
+font-thicken       = true
+adjust-cell-height = 8%
+
+# ── Theme / colors ──────────────────────────────────────────────────────────
+# Theme names are Title Case with spaces as of Ghostty 1.2.0.
+# Run `ghostty +list-themes` to preview others.
+theme              = Catppuccin Mocha
+background-opacity = 0.96
+background-blur    = 20
+# Richer color on the MacBook display (valid: srgb, display-p3).
+window-colorspace  = display-p3
+cursor-style       = block
+cursor-style-blink = false
+
+# ── Window / UI ───────────────────────────────────────────────────────────
+# Native tab bar in the titlebar.
+macos-titlebar-style    = tabs
+window-padding-x        = 8
+window-padding-y        = 6
+# Restore windows/tabs/splits on relaunch.
+window-save-state       = always
+mouse-hide-while-typing = true
+# Select text → straight to the clipboard.
+copy-on-select          = clipboard
+# No confirmation nag when closing a pane.
+confirm-close-surface   = false
+
+# ── Scrollback ──────────────────────────────────────────────────────────────
+# ~100MB — generous headroom for long build / validation logs.
+scrollback-limit = 100000000
+
+# ── Bell / attention ──────────────────────────────────────────────────
+# On macOS the bell can only bounce the dock icon (attention) and add a title
+# bell emoji (title) — there is NO audio or screen-flash bell on macOS; those
+# are GTK/Linux only. So this just ensures the dock bounce + emoji stay on.
+# Audible alerts for Claude Code permission prompts are wired up separately in
+# ~/.claude/settings.json (afplay + a macOS notification), which is more
+# reliable and fires even when Ghostty isn't the focused window.
+bell-features = attention,title
+
+# ── SSH / remote (the RHEL boxes) ───────────────────────────────────────────
+# The big quality-of-life win for your VM work: auto-install the ghostty
+# terminfo on remote hosts over SSH and pass a sane TERM, so keys, colors,
+# and `clear` don't garble on machines that have never heard of xterm-ghostty.
+shell-integration          = zsh
+shell-integration-features = ssh-terminfo,ssh-env,cursor,sudo,title
+
+# ── Splits ──────────────────────────────────────────────────────────────────
+# Local Mac panes. tmux still owns multiplexing on the remote side — these
+# cmd-based binds never collide with tmux's ctrl-b / ctrl-a prefix.
+keybind = cmd+d=new_split:right
+keybind = cmd+shift+d=new_split:down
+keybind = cmd+w=close_surface
+keybind = cmd+ctrl+left=goto_split:left
+keybind = cmd+ctrl+right=goto_split:right
+keybind = cmd+ctrl+up=goto_split:up
+keybind = cmd+ctrl+down=goto_split:down
+keybind = cmd+shift+enter=toggle_split_zoom
+keybind = cmd+alt+equal=equalize_splits
+
+# ── Tabs ──────────────────────────────────────────────────────────────────
+keybind = cmd+t=new_tab
+keybind = cmd+shift+left_bracket=previous_tab
+keybind = cmd+shift+right_bracket=next_tab
+
+# ── Quick Terminal (drop-down from a global hotkey, from any app) ───────────
+# Needs Accessibility permission the first time macOS prompts. If the key
+# doesn't bind on your build, check `ghostty +list-keybinds`.
+keybind = global:cmd+grave_accent=toggle_quick_terminal
+
+# ── Misc ──────────────────────────────────────────────────────────────────
+keybind = cmd+shift+r=reload_config
