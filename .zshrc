@@ -92,9 +92,9 @@ if [[ -d "$ZSH" ]]; then
     ZSH_THEME=""
   fi
   if [[ "$_OS" == "Darwin" ]]; then
-    plugins=(git macos zsh-autosuggestions zsh-syntax-highlighting fzf)
+    plugins=(git macos zsh-autosuggestions fzf)
   else
-    plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf)
+    plugins=(git zsh-autosuggestions fzf)
   fi
   source "$ZSH/oh-my-zsh.sh"
 else
@@ -362,10 +362,14 @@ fi
 # -- Linux-local overrides (sourced if present; written by install-linux.sh) -
 [[ -f "$HOME/.zshrc.linux-local" && "$_OS" == "Linux" ]] && source "$HOME/.zshrc.linux-local"
 
-# -- zsh-syntax-highlighting (MUST be last) — only when OMZ didn't load it ----
-if [[ ! -d "$ZSH" ]]; then
-  for _f in /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-            /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
-    [[ -r "$_f" ]] && { source "$_f"; break; }
-  done
-fi
+# -- zsh-syntax-highlighting (MUST be last) ----------------------------------
+# Loaded here from a version-matched copy on every OS, NOT via the OMZ plugin
+# array: OMZ's bundled copy mismatches zsh 5.9 on the NVIDIA VMs and wraps the
+# ZLE widgets in a way that doubles every keystroke. The system/brew copies match.
+for _f in \
+  /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
+  [[ -r "$_f" ]] && { source "$_f"; break; }
+done
