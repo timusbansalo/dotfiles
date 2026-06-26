@@ -62,6 +62,7 @@ export EDITOR="vi"
 export VISUAL="$EDITOR"
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
+export AI_PIM_UTILS_TELEMETRY_DISABLED=1
 # pip --user / cargo / npm-global binaries land here on Linux
 [[ -d "$HOME/.local/bin" ]] && export PATH="$HOME/.local/bin:$PATH"
 
