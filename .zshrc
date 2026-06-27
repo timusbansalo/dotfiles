@@ -88,6 +88,11 @@ HYPHEN_INSENSITIVE="true"             # _ and - interchangeable in completion
 DISABLE_AUTO_UPDATE="false"           # let OMZ self-update
 COMPLETION_WAITING_DOTS="true"        # show "..." while completing
 DISABLE_UNTRACKED_FILES_DIRTY="true"  # speed up status in big repos
+# Must be set BEFORE sourcing OMZ: prevents OMZ's lib/misc.zsh from binding
+# self-insert → url-quote-magic. url-quote-magic internally calls `zle self-insert`,
+# creating a recursive chain when zsh-autosuggestions/zsh-syntax-highlighting also
+# wrap self-insert — every keypress fires twice. Both plugins require this unset.
+DISABLE_MAGIC_FUNCTIONS=true
 
 if [[ -d "$ZSH" ]]; then
   # Oh My Zsh is installed (macOS, or a Linux box with github access).
@@ -104,6 +109,17 @@ if [[ -d "$ZSH" ]]; then
     plugins=(git fzf)
   fi
   source "$ZSH/oh-my-zsh.sh"
+  # On Linux with OMZ: load autosuggestions directly, NOT via the plugins=() list.
+  # Loading via OMZ plugins list was tried and caused ZLE widget doubling (now fixed
+  # via DISABLE_MAGIC_FUNCTIONS above, but direct loading is the established safe pattern).
+  if [[ "$_OS" == "Linux" ]]; then
+    for _f in \
+      /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+      /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh \
+      "$ZSH/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"; do
+      [[ -r "$_f" ]] && { source "$_f"; break; }
+    done
+  fi
 else
   # No Oh My Zsh (e.g. NVIDIA Omnistation can't clone github). Source the
   # apt-installed autosuggestions plugin directly. Syntax highlighting must be
@@ -377,6 +393,7 @@ for _f in \
   /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
   /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
   /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
+  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  "$ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"; do
   [[ -r "$_f" ]] && { source "$_f"; break; }
 done
