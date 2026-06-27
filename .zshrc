@@ -101,7 +101,7 @@ if [[ -d "$ZSH" ]]; then
   if [[ "$_OS" == "Darwin" ]]; then
     plugins=(git macos zsh-autosuggestions fzf)
   else
-    plugins=(git fzf zsh-autosuggestions)
+    plugins=(git fzf)
   fi
   source "$ZSH/oh-my-zsh.sh"
 else
@@ -377,7 +377,6 @@ for _f in \
   /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
   /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
   /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-  "$ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"; do
+  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
   [[ -r "$_f" ]] && { source "$_f"; break; }
 done
