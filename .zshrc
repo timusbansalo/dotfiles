@@ -88,10 +88,23 @@ HYPHEN_INSENSITIVE="true"             # _ and - interchangeable in completion
 DISABLE_AUTO_UPDATE="false"           # let OMZ self-update
 COMPLETION_WAITING_DOTS="true"        # show "..." while completing
 DISABLE_UNTRACKED_FILES_DIRTY="true"  # speed up status in big repos
-# Must be set BEFORE sourcing OMZ: prevents OMZ's lib/misc.zsh from binding
-# self-insert → url-quote-magic. url-quote-magic internally calls `zle self-insert`,
-# creating a recursive chain when zsh-autosuggestions/zsh-syntax-highlighting also
-# wrap self-insert — every keypress fires twice. Both plugins require this unset.
+# ── Keystroke-doubling investigation (2026-06-27) ────────────────────────────
+# Symptom: every keypress appeared 2–3× on NVIDIA Linux VMs (zsh 5.9-8ubuntu3).
+# Root cause: OMZ's lib/misc.zsh runs `zle -N self-insert url-quote-magic` at
+# startup. url-quote-magic then calls `zle self-insert` internally. When
+# zsh-autosuggestions and zsh-syntax-highlighting both wrap self-insert (as they
+# must), the call chain becomes:
+#
+#   keystroke → autosuggest-wrapper → highlight-wrapper → url-quote-magic
+#              → `zle self-insert` (now the autosuggest-wrapper!) → loops
+#
+# Fix: DISABLE_MAGIC_FUNCTIONS=true tells OMZ to skip the url-quote-magic
+# binding entirely. Both plugin READMEs list this as the canonical OMZ fix.
+# Must be set BEFORE sourcing oh-my-zsh.sh.
+#
+# Why it wasn't obvious before: the doubling only appears in a live TTY (ZLE
+# active). Tests with `zsh -i -c '...'` run without ZLE so the loop never fires.
+# ─────────────────────────────────────────────────────────────────────────────
 DISABLE_MAGIC_FUNCTIONS=true
 
 if [[ -d "$ZSH" ]]; then
@@ -109,9 +122,11 @@ if [[ -d "$ZSH" ]]; then
     plugins=(git fzf)
   fi
   source "$ZSH/oh-my-zsh.sh"
-  # On Linux with OMZ: load autosuggestions directly, NOT via the plugins=() list.
-  # Loading via OMZ plugins list was tried and caused ZLE widget doubling (now fixed
-  # via DISABLE_MAGIC_FUNCTIONS above, but direct loading is the established safe pattern).
+  # On Linux with OMZ: load autosuggestions via a direct for-loop, NOT via the
+  # plugins=() list. The plugins list was tried first; it caused ZLE doubling
+  # (see DISABLE_MAGIC_FUNCTIONS note above). Even with that fix applied, direct
+  # loading after OMZ finishes is the safer pattern — widget chains are stable by
+  # then. Checks system paths first (apt), falls back to the OMZ custom clone.
   if [[ "$_OS" == "Linux" ]]; then
     for _f in \
       /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
@@ -385,10 +400,13 @@ fi
 # -- Linux-local overrides (sourced if present; written by install-linux.sh) -
 [[ -f "$HOME/.zshrc.linux-local" && "$_OS" == "Linux" ]] && source "$HOME/.zshrc.linux-local"
 
-# -- zsh-syntax-highlighting (MUST be last) ----------------------------------
-# Loaded here from a version-matched copy on every OS, NOT via the OMZ plugin
-# array: OMZ's bundled copy mismatches zsh 5.9 on the NVIDIA VMs and wraps the
-# ZLE widgets in a way that doubles every keystroke. The system/brew copies match.
+# -- zsh-syntax-highlighting (MUST be sourced last) --------------------------
+# Loaded here via a direct for-loop, NOT via the OMZ plugins=() array.
+# History: adding it to plugins=() caused ZLE widget doubling on NVIDIA VMs
+# (zsh 5.9). Root cause was OMZ's url-quote-magic binding (see DISABLE_MAGIC_FUNCTIONS
+# above); loading via plugins list triggered the loop; direct sourcing after all
+# OMZ/p10k init is complete avoids any timing issues regardless.
+# Priority order: Homebrew (macOS) → system apt paths → OMZ custom clone.
 for _f in \
   /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
   /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
