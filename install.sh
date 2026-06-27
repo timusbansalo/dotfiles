@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dotfiles-version: 1.0.0
+# dotfiles-version: 1.0.1
 # install.sh — the ONE command to run on any machine.
 #
 # You never have to remember which installer to use: this detects the OS and
@@ -16,7 +16,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Single source of truth for the repo version. Bump this when you change the
 # scripts; every versioned file must carry a matching "# dotfiles-version:".
-DOTFILES_VERSION="1.0.0"
+DOTFILES_VERSION="1.0.1"
 
 # require_version <file> — file must exist and declare our exact version.
 require_version() {

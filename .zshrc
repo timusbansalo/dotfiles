@@ -1,4 +1,4 @@
-# dotfiles-version: 1.0.0
+# dotfiles-version: 1.0.1
 # =============================================================================
 # .zshrc — Sumit's shell config (portable: macOS + Linux incl. NVIDIA VMs)
 # Symlinked from the dotfiles repo. Edit either side, they're the same file.
@@ -11,6 +11,12 @@
 
 # Cache uname once.
 _OS="$(uname -s)"
+
+# Fix xterm-ghostty on Linux systems that lack its terminfo entry (e.g. NVIDIA VMs).
+# Without a terminfo entry, backspace/arrows break and tput can't detect colors.
+if [[ "$_OS" == "Linux" && "$TERM" == "xterm-ghostty" ]] && ! infocmp xterm-ghostty &>/dev/null 2>&1; then
+  export TERM=xterm-256color
+fi
 
 # -- Login welcome banner ----------------------------------------------------
 # `whereami` prints which machine/env this is + its restrictions. Shown once on
@@ -95,7 +101,7 @@ if [[ -d "$ZSH" ]]; then
   if [[ "$_OS" == "Darwin" ]]; then
     plugins=(git macos zsh-autosuggestions fzf)
   else
-    plugins=(git fzf)
+    plugins=(git fzf zsh-autosuggestions)
   fi
   source "$ZSH/oh-my-zsh.sh"
 else
@@ -371,6 +377,7 @@ for _f in \
   /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
   /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
   /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
+  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  "$ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"; do
   [[ -r "$_f" ]] && { source "$_f"; break; }
 done

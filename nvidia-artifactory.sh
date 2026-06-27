@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dotfiles-version: 1.0.0
+# dotfiles-version: 1.0.1
 # nvidia-artifactory.sh — point pip / npm (and document cargo) at NVIDIA's
 # internal Artifactory virtual repos, so package installs work on machines with
 # no open internet (Omnistation) without ever proxying around the egress ACL.
