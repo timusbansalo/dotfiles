@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dotfiles-version: 1.0.2
+# dotfiles-version: 1.0.3
 # install-linux.sh — portable Linux dotfiles installer.
 #
 # Normally invoked via ./install.sh (the single entry point), but safe to run

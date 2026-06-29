@@ -1,4 +1,4 @@
-# dotfiles-version: 1.0.2
+# dotfiles-version: 1.0.3
 # =============================================================================
 # .zshrc — Sumit's shell config (portable: macOS + Linux incl. NVIDIA VMs)
 # Symlinked from the dotfiles repo. Edit either side, they're the same file.
@@ -288,6 +288,7 @@ alias gr="git rebase"
 # -- Misc niceties -----------------------------------------------------------
 alias path='echo -e ${PATH//:/\\n}'
 alias reload="source ~/.zshrc && echo 'reloaded ~/.zshrc'"
+alias cc='claude --permission-mode bypassPermissions --allow-dangerously-skip-permissions --dangerously-skip-permissions'
 
 # -- Omnistation -------------------------------------------------------------
 omni-claude() {
