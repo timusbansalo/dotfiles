@@ -80,9 +80,9 @@ Host vm subansa-linux-vm.nvidia.com
     ControlPersist 1h
 
 # ── Mac (for Linux VMs to connect back) ─────────────────────────────────────
-# IP is DHCP on NVIDIA corporate network — update if it changes (run `ifconfig en0`)
+# Static IP assigned by NVIDIA IT (itss ticket #1680443); subnet 10.111.32.0/23 via en7
 Host mac
-    HostName 10.110.93.21
+    HostName subansal-mac.nvidia.com
     User subansal
     IdentityFile ~/.ssh/id_ed25519_nvidia_vm
     IdentitiesOnly yes
