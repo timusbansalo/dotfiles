@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dotfiles-version: 1.0.1
+# dotfiles-version: 1.0.2
 # install-linux.sh — portable Linux dotfiles installer.
 #
 # Normally invoked via ./install.sh (the single entry point), but safe to run
@@ -394,6 +394,29 @@ else
     note "Nerd Font not installed; set your terminal font to MesloLGS NF manually."
   fi
   set -e
+fi
+
+# -- Ghostty terminfo (xterm-ghostty → ~/.terminfo) --------------------------
+# Eliminates the "Setting up xterm-ghostty terminfo... Failed to install" banner
+# that Ghostty shows when SSHing into a machine without xterm-ghostty in the
+# system terminfo DB. Source lives at terminfo/ghostty.terminfo in this repo,
+# generated once from a Mac that has Ghostty installed:
+#   infocmp -x xterm-ghostty > ~/dotfiles/terminfo/ghostty.terminfo
+echo ""
+echo "--- Ghostty terminfo ---"
+GHOSTTY_TERMINFO="$REPO_DIR/terminfo/ghostty.terminfo"
+if [[ ! -f "$GHOSTTY_TERMINFO" ]]; then
+  echo "  terminfo/ghostty.terminfo not in repo — skipping"
+  note "Ghostty terminfo not bundled. On your Mac run: infocmp -x xterm-ghostty > ~/dotfiles/terminfo/ghostty.terminfo  then commit."
+elif infocmp xterm-ghostty &>/dev/null 2>&1; then
+  echo "  xterm-ghostty terminfo already installed"
+else
+  if tic -x "$GHOSTTY_TERMINFO" 2>/dev/null; then
+    echo "  installed xterm-ghostty terminfo -> ~/.terminfo"
+  else
+    echo "  tic failed — skipping"
+    note "Ghostty terminfo install failed; run manually: tic -x ~/dotfiles/terminfo/ghostty.terminfo"
+  fi
 fi
 
 # -- Linux-local extras (host-specific; ls/PATH now handled in .zshrc) -------

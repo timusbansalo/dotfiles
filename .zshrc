@@ -1,4 +1,4 @@
-# dotfiles-version: 1.0.1
+# dotfiles-version: 1.0.2
 # =============================================================================
 # .zshrc — Sumit's shell config (portable: macOS + Linux incl. NVIDIA VMs)
 # Symlinked from the dotfiles repo. Edit either side, they're the same file.
@@ -58,10 +58,14 @@ whereami() {
 }
 
 # -- Powerlevel10k instant prompt (macOS; harmless no-op elsewhere) ----------
+# `whereami` MUST run before the instant-prompt block — any console output after
+# that block triggers a p10k warning. The function is defined above, so calling
+# it here is safe.
+[[ -o interactive && -o login ]] && whereami
+
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
-[[ -o interactive && -o login ]] && whereami
 
 
 # -- Path / env ---------------------------------------------------------------

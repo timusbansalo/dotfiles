@@ -53,6 +53,19 @@ Host prodvm subansal-prod-vm.nvidia.com
     ControlPath ~/.ssh/cm-%r@%h:%p
     ControlPersist 1h
 
+Host prodvm2 subansal-prod-vm2.nvidia.com
+    HostName subansal-prod-vm2.nvidia.com
+    User subansal
+    IdentityFile ~/.ssh/id_ed25519_nvidia_vm
+    IdentitiesOnly yes
+    ServerAliveInterval 30
+    ServerAliveCountMax 120
+    TCPKeepAlive yes
+    ConnectTimeout 30
+    ControlMaster auto
+    ControlPath ~/.ssh/cm-%r@%h:%p
+    ControlPersist 1h
+
 Host vm subansa-linux-vm.nvidia.com
     HostName subansa-linux-vm.nvidia.com
     User subansal

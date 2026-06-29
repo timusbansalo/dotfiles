@@ -8,7 +8,7 @@ strip_ansi() { sed 's/\x1b\[[0-9;]*m//g'; }
 
 if [[ -f "$CACHE" ]]; then
     mcp=$(cat "$CACHE" 2>/dev/null | strip_ansi | tr -d '\n')
-    age=$(( $(date +%s) - $(stat -f %m "$CACHE" 2>/dev/null || echo 0) ))
+    age=$(( $(date +%s) - $(stat -c %Y "$CACHE" 2>/dev/null || stat -f %m "$CACHE" 2>/dev/null || echo 0) ))
     [[ $age -gt 300 ]] && (ssh -o ConnectTimeout=5 -o BatchMode=yes omnistation '~/mcp-health.sh' > "$CACHE" 2>/dev/null &)
 else
     mcp="(not cached yet)"
