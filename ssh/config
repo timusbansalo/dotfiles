@@ -78,3 +78,15 @@ Host vm subansa-linux-vm.nvidia.com
     ControlMaster auto
     ControlPath ~/.ssh/cm-%r@%h:%p
     ControlPersist 1h
+
+# ── Mac (for Linux VMs to connect back) ─────────────────────────────────────
+# IP is DHCP on NVIDIA corporate network — update if it changes (run `ifconfig en0`)
+Host mac
+    HostName 10.110.93.21
+    User subansal
+    IdentityFile ~/.ssh/id_ed25519_nvidia_vm
+    IdentitiesOnly yes
+    ServerAliveInterval 30
+    ServerAliveCountMax 10
+    TCPKeepAlive yes
+    ConnectTimeout 15

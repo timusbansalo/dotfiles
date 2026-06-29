@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash __HOME__/dotfiles/.claude/hooks/approval-banner.sh > /dev/tty 2>&1"
+            "command": "sh -c '[ -e /dev/tty ] && bash __HOME__/dotfiles/.claude/hooks/approval-banner.sh > /dev/tty 2>&1 || true'"
           },
           {
             "type": "command",
@@ -48,7 +48,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash __HOME__/dotfiles/.claude/hooks/input-banner.sh > /dev/tty 2>&1"
+            "command": "sh -c '[ -e /dev/tty ] && bash __HOME__/dotfiles/.claude/hooks/input-banner.sh > /dev/tty 2>&1 || true'"
           },
           {
             "type": "command",
@@ -93,7 +93,15 @@
       "Bash(date *)",
       "Bash(env *)",
       "Bash(printenv *)",
-      "Bash(source *)"
+      "Bash(source *)",
+      "Bash(ssh prodvm2 *)",
+      "Bash(ssh prodvm2)",
+      "Bash(ssh-keyscan *)",
+      "Bash(ssh-copy-id *)",
+      "Bash(scp * prodvm2:*)",
+      "Bash(scp prodvm2:* *)",
+      "Bash(rsync * prodvm2:*)",
+      "Bash(rsync prodvm2:* *)"
     ]
   }
 }
