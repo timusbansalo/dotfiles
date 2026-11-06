@@ -82,7 +82,9 @@ keybind = cmd+shift+right_bracket=next_tab
 # ── Quick Terminal (drop-down from a global hotkey, from any app) ───────────
 # Needs Accessibility permission the first time macOS prompts. If the key
 # doesn't bind on your build, check `ghostty +list-keybinds`.
-keybind = global:cmd+grave_accent=toggle_quick_terminal
+# ctrl+` here so macOS keeps cmd+` free for cycling between Ghostty
+# windows (cmd+shift+` cycles backwards).
+keybind = global:ctrl+grave_accent=toggle_quick_terminal
 
 # ── Misc ──────────────────────────────────────────────────────────────────
 keybind = cmd+shift+r=reload_config

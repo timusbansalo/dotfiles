@@ -420,3 +420,5 @@ for _f in \
   "$ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"; do
   [[ -r "$_f" ]] && { source "$_f"; break; }
 done
+
+. "$HOME/.local/bin/env"
