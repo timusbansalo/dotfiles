@@ -241,6 +241,11 @@ cd() {
 
   builtin cd "$dest" || return $?
 
+  # History bookkeeping only in interactive shells with the vars set. A non-interactive
+  # shell (Claude Code's Bash tool snapshots this function but not CDHISTFILE) used to
+  # reach `mv "$tmpfile" ""` here and abort every `cd … && …` chain (found 2026-11-06).
+  [[ -o interactive && -n "$CDHISTFILE" && -n "$CDHISTSIZE" ]] || return 0
+
   local cwd="$PWD"
   if [[ "$cwd" != "$HOME" ]]; then
     local tmpfile
