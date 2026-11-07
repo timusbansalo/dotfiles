@@ -40,7 +40,7 @@ Host omnistation
     ConnectTimeout 30
 
 # ── NVIDIA VMs (all use the vm-identity key) ─────────────────────────────────
-Host prodvm subansal-prod-vm.nvidia.com
+Host prodvm subansal-prod-vm subansal-prod-vm.nvidia.com
     HostName subansal-prod-vm.nvidia.com
     User subansal
     IdentityFile ~/.ssh/id_ed25519_nvidia_vm
