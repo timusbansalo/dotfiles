@@ -83,10 +83,10 @@ Host vm subansa-linux-vm.nvidia.com
 # Static IP assigned by NVIDIA IT (itss ticket #1680443); subnet 10.111.32.0/23 via en7
 Host mac
     HostName subansal-mac.nvidia.com
+    HostKeyAlias mac
+    ProxyCommand ~/.local/bin/mac-connect %p
     User subansal
     IdentityFile ~/.ssh/id_ed25519_nvidia_vm
     IdentitiesOnly yes
     ServerAliveInterval 30
     ServerAliveCountMax 10
-    TCPKeepAlive yes
-    ConnectTimeout 15
